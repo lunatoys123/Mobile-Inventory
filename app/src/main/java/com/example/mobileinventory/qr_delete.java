@@ -17,9 +17,10 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class qr_delete extends AppCompatActivity {
-    String Old_division, Old_post, Old_name, Old_type, Old_model, Old_Serial;
+    String[] Info;
     TextView debug;
     Connection con = null;
+    DataBaseInitial dataBaseInitial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,31 +29,73 @@ public class qr_delete extends AppCompatActivity {
         debug = findViewById(R.id.debug);
 
         String[] content = getIntent().getStringExtra("content").split("\n");
-        Old_division = content[1].split(":")[1];
+        String item_id = content[1];
+        /*Old_division = content[1].split(":")[1];
         Old_post = content[2].split(":")[1];
         Old_name = content[3].split(":")[1];
         Old_type = content[4].split(":")[1];
         Old_model = content[5].split(":")[1];
-        Old_Serial = (content[6].split(":").length == 2) ? content[6].split(":")[1] : "";
-        new DataBaseInitial(this).execute();
+        Old_Serial = (content[6].split(":").length == 2) ? content[6].split(":")[1] : "";*/
+
+        dataBaseInitial = new DataBaseInitial(this);
+        dataBaseInitial.execute();
 
         try {
-            getOwnersID getOwner = new getOwnersID(this);
-            String ownersId = getOwner.execute(Old_division.trim(), Old_post.trim(), Old_name.trim()).get();
-
-            getEquipmentID getEquipment = new getEquipmentID(this);
-            String equipmentId = getEquipment.execute(Old_type.trim(), Old_model.trim(), Old_Serial.trim()).get();
-
-            new DeleteInventory(this).execute(ownersId, equipmentId);
+            getInfoFromItemId getInfoFromItemId = new getInfoFromItemId(this);
+            Info = getInfoFromItemId.execute(item_id).get();
+            new DeleteInventory(this).execute(item_id);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
 
-//        AlertDialog.Builder dialog = new AlertDialog.Builder(qr_delete.this);
-//        dialog.setTitle("Welcome");
-//        dialog.setMessage(getIntent().getStringExtra("content"));
-//        dialog.setPositiveButton("Confirm", (dialog1, which) -> dialog1.cancel());
-//        dialog.show();
+
+    }
+
+    private static class getInfoFromItemId extends AsyncTask<String, Void, String[]> {
+        private final WeakReference<qr_delete> weakReference;
+
+        getInfoFromItemId(qr_delete context) {
+            weakReference = new WeakReference<>(context);
+        }
+
+        @Override
+        protected String[] doInBackground(String... params) {
+            String[] result = new String[6];
+            qr_delete activity = weakReference.get();
+            String item_id = params[0];
+            String sql = "select o.owner_division,o.owner_post, o.owner_name, e.Type, e.Model, e.Serial " +
+                    "from inventory i ,owners o,equipment e where i.items_id = ? " +
+                    "and i.E_id = e.E_id and i.owner_id = o.owner_id";
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+
+            try {
+                ps = activity.con.prepareStatement(sql);
+                ps.setString(1, item_id);
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    result[0] = rs.getString("owner_division");
+                    result[1] = rs.getString("owner_post");
+                    result[2] = rs.getString("owner_name");
+                    result[3] = rs.getString("Type");
+                    result[4] = rs.getString("Model");
+                    result[5] = rs.getString("Serial");
+
+                    return result;
+                }
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+            } finally {
+                try {
+                    if (ps != null) ps.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+
+            return null;
+        }
     }
 
     private static class DeleteInventory extends AsyncTask<String, Void, Void> {
@@ -65,26 +108,24 @@ public class qr_delete extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             qr_delete activity = weakReference.get();
-            String ownersId = params[0];
-            String equipmentId = params[1];
-            String sql = "Delete from Inventory where E_id=? and owner_id=?";
+            String item_id = params[0];
+            String sql = "Delete from Inventory where Items_ID=?";
             PreparedStatement ps = null;
 
             try {
                 ps = activity.con.prepareStatement(sql);
-                ps.setString(1, equipmentId);
-                ps.setString(2, ownersId);
+                ps.setString(1, item_id);
                 ps.executeUpdate();
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             } finally {
-                if(ps!=null){
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
+
+                try {
+                    if (ps != null) ps.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
                 }
+
             }
 
             return null;
@@ -96,7 +137,13 @@ public class qr_delete extends AppCompatActivity {
             AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
             dialog.setTitle("Delete successful");
             dialog.setCancelable(false);
-            dialog.setMessage(activity.getIntent().getStringExtra("content"));
+
+            String message = "";
+            for(int i =0;i<activity.Info.length;i++){
+                message+=activity.Info[i]+"\n";
+            }
+            dialog.setMessage(message);
+
             dialog.setPositiveButton("Confirm", (dialog1, which) -> {
                 Intent intent = new Intent(activity, MainMenu.class);
                 activity.startActivity(intent);
@@ -168,21 +215,15 @@ public class qr_delete extends AppCompatActivity {
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             } finally {
-                if (ps != null) {
+                {
                     try {
-                        ps.close();
+                        if (ps != null) ps.close();
+                        if (rs != null) rs.close();
                     } catch (SQLException throwable) {
                         throwable.printStackTrace();
                     }
                 }
 
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
             }
 
             return EquipmentID;
@@ -237,17 +278,10 @@ public class qr_delete extends AppCompatActivity {
                     } catch (SQLException throwable) {
                         throwable.printStackTrace();
                     } finally {
-                        if (ps != null) {
+                        {
                             try {
-                                ps.close();
-                            } catch (SQLException throwable) {
-                                throwable.printStackTrace();
-                            }
-                        }
-
-                        if (rs != null) {
-                            try {
-                                rs.close();
+                                if (ps != null) ps.close();
+                                if (rs != null) rs.close();
                             } catch (SQLException throwable) {
                                 throwable.printStackTrace();
                             }

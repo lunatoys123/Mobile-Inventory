@@ -97,7 +97,7 @@ public class scanQR extends AppCompatActivity {
                                     intent.putExtra("content", DecodeContent);
                                     startActivity(intent);
                                 } else if (Action.equalsIgnoreCase("Delete")) {
-                                    Intent intent = new Intent(scanQR.this, qr_delete.class);
+                                   Intent intent = new Intent(scanQR.this, qr_delete.class);
                                     intent.putExtra("content", DecodeContent);
                                     startActivity(intent);
                                 }

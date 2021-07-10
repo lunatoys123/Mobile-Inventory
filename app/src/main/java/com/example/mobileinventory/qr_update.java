@@ -1,7 +1,6 @@
 package com.example.mobileinventory;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -13,13 +12,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,9 +28,12 @@ public class qr_update extends AppCompatActivity {
     TextView debug, nameText;
     Connection con = null;
     Spinner division_spinner, post_spinner, Type_spinner, model_spinner, Serial_no_spinner;
-    String Old_division, Old_post, Old_name, Old_type, Old_model, Old_Serial, Old_ownersId, Old_EquipmentId;
+    String Old_ownersId, Old_EquipmentId;
+    String[] Info;
     getOwnersID getOwners;
     getEquipmentID getEquipmentID;
+    DataBaseInitial dataBaseInitial;
+    getInfoFromItemId getInfoFromItemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +41,7 @@ public class qr_update extends AppCompatActivity {
         setContentView(R.layout.activity_qr_update);
 
         String[] content = getIntent().getStringExtra("content").split("\n");
-        Old_division = content[1].split(":")[1];
-        Old_post = content[2].split(":")[1];
-        Old_name = content[3].split(":")[1];
-        Old_type = content[4].split(":")[1];
-        Old_model = content[5].split(":")[1];
-        Old_Serial = (content[6].split(":").length == 2) ? content[6].split(":")[1] : "";
+        String item_id = content[1];
 
         debug = findViewById(R.id.Debug);
         division_spinner = findViewById(R.id.division_Spinner);
@@ -61,21 +51,22 @@ public class qr_update extends AppCompatActivity {
         model_spinner = findViewById(R.id.modelSpinner);
         Serial_no_spinner = findViewById(R.id.SerialNoSpinner);
 
-        new DataBaseInitial(this).execute();
-        new InitialSpinnerOwners(this).execute();
-        new setUpEquipmentSpinner(this).execute();
+        dataBaseInitial = new DataBaseInitial(this);
+        dataBaseInitial.execute();
+
 
         try {
+            getInfoFromItemId = new getInfoFromItemId(this);
+            Info = getInfoFromItemId.execute(item_id).get();
+
+            new InitialSpinnerOwners(this).execute();
+            new setUpEquipmentSpinner(this).execute();
+
             getOwners = new getOwnersID(this);
             getEquipmentID = new getEquipmentID(this);
-            Old_ownersId = getOwners.execute(Old_division.trim(), Old_post.trim(), Old_name.trim()).get();
-            Old_EquipmentId = getEquipmentID.execute(Old_type.trim(), Old_model.trim(), Old_Serial.trim()).get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+            Old_ownersId = getOwners.execute(Info[0], Info[1], Info[2]).get();
+            Old_EquipmentId = getEquipmentID.execute(Info[3], Info[4], Info[5]).get();
 
-
-        try {
             checkQRExists exists = new checkQRExists(this);
             boolean QRExists = exists.execute(Old_ownersId, Old_EquipmentId).get();
             if (!QRExists) {
@@ -92,9 +83,57 @@ public class qr_update extends AppCompatActivity {
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
+
         //debug.setText(getIntent().getStringExtra("content"));
 
 
+    }
+
+    private static class getInfoFromItemId extends AsyncTask<String, Void, String[]> {
+        private final WeakReference<qr_update> weakReference;
+
+        getInfoFromItemId(qr_update context) {
+            weakReference = new WeakReference<>(context);
+        }
+
+        @Override
+        protected String[] doInBackground(String... params) {
+            String[] result = new String[6];
+            qr_update activity = weakReference.get();
+            String item_id = params[0];
+            String sql = "select o.owner_division,o.owner_post, o.owner_name, e.Type, e.Model, e.Serial " +
+                    "from inventory i ,owners o,equipment e where i.items_id = ? " +
+                    "and i.E_id = e.E_id and i.owner_id = o.owner_id";
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+
+            try {
+                ps = activity.con.prepareStatement(sql);
+                ps.setString(1, item_id);
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    result[0] = rs.getString("owner_division");
+                    result[1] = rs.getString("owner_post");
+                    result[2] = rs.getString("owner_name");
+                    result[3] = rs.getString("Type");
+                    result[4] = rs.getString("Model");
+                    result[5] = rs.getString("Serial");
+
+                    return result;
+                }
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+            } finally {
+                try {
+                    if (ps != null) ps.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+
+            return null;
+        }
     }
 
     private static class checkQRExists extends AsyncTask<String, Void, Boolean> {
@@ -164,54 +203,27 @@ public class qr_update extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             qr_update activity = weakReference.get();
-            String sql = "update inventory set E_id=?, owner_id=?, QR_code=?, Date=? where E_id=? and owner_id=?";
+            String sql = "update inventory set E_id=?, owner_id=?,Date=? where E_id=? and owner_id=?";
             PreparedStatement ps = null;
 
             try {
                 ps = activity.con.prepareStatement(sql);
                 ps.setString(1, params[3]);
                 ps.setString(2, params[2]);
-
-
-                String division = activity.division_spinner.getSelectedItem().toString();
-                String post = activity.post_spinner.getSelectedItem().toString();
-                String name = activity.nameText.getText().toString();
-                String type = activity.Type_spinner.getSelectedItem().toString();
-                String model = activity.model_spinner.getSelectedItem().toString();
-                String Serial = (activity.Serial_no_spinner.getSelectedItem() == null) ? "" : activity.Serial_no_spinner.getSelectedItem().toString();
-
-                String QRContent = "Audit Commission \ndivision: " + division + "\n" +
-                        "post: " + post + "\n" +
-                        "name: " + name + "\n" +
-                        "Type: " + type + "\n" +
-                        "Model_no: " + model + "\n" +
-                        "Serial_no: " + Serial;
-
-                MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-                //AESEncryption aes = new AESEncryption("audit Commission");
-                BitMatrix bitMatrix = multiFormatWriter.encode(QRContent, BarcodeFormat.QR_CODE, 500, 500);
-                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] imageInByte = stream.toByteArray();
-                ByteArrayInputStream bs = new ByteArrayInputStream(imageInByte);
-
-                ps.setBinaryStream(3, bs);
-                ps.setTimestamp(4, new java.sql.Timestamp(new Date().getTime()));
-                ps.setString(5, params[1]);
-                ps.setString(6, params[0]);
+                ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
+                ps.setString(4, params[1]);
+                ps.setString(5, params[0]);
                 ps.executeUpdate();
             } catch (Exception throwable) {
                 throwable.printStackTrace();
             } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
+
+                try {
+                    if (ps != null) ps.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
                 }
+
             }
 
             return null;
@@ -410,7 +422,8 @@ public class qr_update extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, typeList);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.Type_spinner.setAdapter(adapter);
-            int position = typeList.indexOf(activity.Old_type.trim());
+            String Old_Type = activity.Info[3];
+            int position = typeList.indexOf(Old_Type.trim());
             activity.Type_spinner.setSelection(position);
             activity.Type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -453,20 +466,11 @@ public class qr_update extends AppCompatActivity {
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
+                try {
+                    if (ps != null) ps.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
                 }
             }
 
@@ -479,7 +483,8 @@ public class qr_update extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, model_list);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.model_spinner.setAdapter(adapter);
-            int position = model_list.indexOf(activity.Old_model.trim());
+            String Old_model = activity.Info[4];
+            int position = model_list.indexOf(Old_model.trim());
             activity.model_spinner.setSelection(position);
             activity.model_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -551,8 +556,9 @@ public class qr_update extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, Serial);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.Serial_no_spinner.setAdapter(adapter);
-            if (!activity.Old_Serial.equals("")) {
-                int position = Serial.indexOf(activity.Old_Serial.trim());
+            String Old_Serial = activity.Info[5];
+            if (Old_Serial.equals("")) {
+                int position = Serial.indexOf(Old_Serial.trim());
                 activity.Serial_no_spinner.setSelection(position);
             }
             super.onPostExecute(unused);
@@ -572,7 +578,7 @@ public class qr_update extends AppCompatActivity {
             qr_update activity = weakReference.get();
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                activity.con = DriverManager.getConnection("jdbc:mysql://175.45.63.58:3306/world?autoReconnect=true&useSSL=false", "tony", "Lunatoys123");
+                activity.con = DriverManager.getConnection("jdbc:mysql://192.168.1.140:3306/world?autoReconnect=true&useSSL=false", "tony", "Lunatoys123");
                 Info += "Connection Successful \n";
             } catch (ClassNotFoundException | SQLException e) {
                 Info += e.toString() + "\n";
@@ -647,7 +653,8 @@ public class qr_update extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, division_list);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.division_spinner.setAdapter(adapter);
-            int position = division_list.indexOf(activity.Old_division.trim());
+            String Old_division = activity.Info[0];
+            int position = division_list.indexOf(Old_division.trim());
             activity.division_spinner.setSelection(position);
             activity.division_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -696,20 +703,12 @@ public class qr_update extends AppCompatActivity {
             } catch (SQLException e) {
                 Info += e.toString() + "\n";
             } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
 
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
+                try {
+                    if (ps != null) ps.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
                 }
             }
             return null;
@@ -725,7 +724,8 @@ public class qr_update extends AppCompatActivity {
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, post_list);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 activity.post_spinner.setAdapter(adapter);
-                int position = post_list.indexOf(activity.Old_post.trim());
+                String Old_post = activity.Info[1];
+                int position = post_list.indexOf(Old_post.trim());
                 activity.post_spinner.setSelection(position);
                 activity.post_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
