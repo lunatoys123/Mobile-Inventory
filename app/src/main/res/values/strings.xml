@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MobileInventory</string>
+    <string name="model">model</string>
+    <string name="serial_no">serial_no</string>
+    <string name="equipment_type">equipment_type</string>
+    <string name="owners_name">owners_name</string>
+    <string name="owners_post">owners_post</string>
+    <string name="owners_division">owners_division</string>
+    <string name="preview_qr_code">preview_qr_code</string>
+    <string name="qr_code">qr_code</string>
+    <string name="delete_qr_code">Delete QR Code</string>
+    <string name="update_qr_code">update QR Code</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+</resources>

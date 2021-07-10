@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/BaseLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".generateQRCode">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/SerialNoSpinner"
+                android:layout_width="242dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="13dp"
+                android:autofillHints="model_no"
+                android:ems="10"
+                android:hint="@string/serial_no"
+                android:inputType="textPersonName"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/serial_no_text"
+                app:layout_constraintTop_toBottomOf="@+id/modelSpinner" />
+
+            <TextView
+                android:id="@+id/Debug"
+                android:layout_width="388dp"
+                android:layout_height="204dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="4dp"
+                android:text="TextView"
+                android:textColor="#DA1414"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.254"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/UpdateBtn" />
+
+            <TextView
+                android:id="@+id/onwer_division_text"
+                android:layout_width="137dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="65dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:text="@string/owners_division"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/division_Spinner"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/owner_post_text"
+                android:layout_width="136dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/owners_post"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/onwer_division_text" />
+
+            <TextView
+                android:id="@+id/name3"
+                android:layout_width="136dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/owners_name"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/owner_post_text"
+                app:layout_constraintTop_toBottomOf="@+id/owner_post_text" />
+
+            <Spinner
+                android:id="@+id/division_Spinner"
+                android:layout_width="242dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="11dp"
+                android:gravity="center"
+                app:layout_constraintStart_toEndOf="@+id/onwer_division_text"
+                app:layout_constraintTop_toTopOf="@+id/onwer_division_text" />
+
+            <Spinner
+                android:id="@+id/Post_spinner"
+                android:layout_width="242dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                app:layout_constraintStart_toStartOf="@+id/division_Spinner"
+                app:layout_constraintTop_toBottomOf="@+id/division_Spinner" />
+
+            <TextView
+                android:id="@+id/nameText"
+                android:layout_width="242dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="8dp"
+                android:enabled="false"
+                android:gravity="center_vertical"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/name3"
+                app:layout_constraintTop_toBottomOf="@+id/Post_spinner" />
+
+            <TextView
+                android:id="@+id/Equipement_type_text"
+                android:layout_width="136dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="69dp"
+                android:gravity="center"
+                android:text="@string/equipment_type"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/model_text"
+                app:layout_constraintTop_toBottomOf="@+id/name3" />
+
+            <TextView
+                android:id="@+id/model_text"
+                android:layout_width="136dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/model"
+                app:layout_constraintStart_toStartOf="@+id/serial_no_text"
+                app:layout_constraintTop_toBottomOf="@+id/Equipement_type_text" />
+
+            <TextView
+                android:id="@+id/serial_no_text"
+                android:layout_width="136dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/serial_no"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/model_text" />
+
+            <Spinner
+                android:id="@+id/modelSpinner"
+                android:layout_width="242dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="13dp"
+                android:autofillHints="model"
+                android:ems="10"
+                android:hint="@string/model"
+                android:inputType="textPersonName"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/model_text"
+                app:layout_constraintTop_toBottomOf="@+id/Type_Spinner" />
+
+            <Spinner
+                android:id="@+id/Type_Spinner"
+                android:layout_width="242dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="69dp"
+                android:layout_marginEnd="13dp"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/Equipement_type_text"
+                app:layout_constraintTop_toBottomOf="@+id/nameText" />
+
+            <Button
+                android:id="@+id/UpdateBtn"
+                android:layout_width="299dp"
+                android:layout_height="55dp"
+                android:layout_marginStart="56dp"
+                android:layout_marginTop="57dp"
+                android:layout_marginEnd="56dp"
+                android:onClick="preview"
+                android:text="@string/preview_qr_code"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/SerialNoSpinner" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
