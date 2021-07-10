@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -231,12 +232,12 @@ public class generateQRCode extends AppCompatActivity {
         String Type = Type_spinner.getSelectedItem().toString();
         String Model = model_spinner.getSelectedItem().toString();
         String Serial = (Serial_no_spinner.getSelectedItem() == null) ? "" : Serial_no_spinner.getSelectedItem().toString();
-        intent.putExtra("division", division);
-        intent.putExtra("post", post);
-        intent.putExtra("name", name);
-        intent.putExtra("Type", Type);
-        intent.putExtra("Model", Model);
-        intent.putExtra("Serial", Serial);
+//        intent.putExtra("division", division);
+//        intent.putExtra("post", post);
+//        intent.putExtra("name", name);
+//        intent.putExtra("Type", Type);
+//        intent.putExtra("Model", Model);
+//        intent.putExtra("Serial", Serial);
         try {
             getOwnerID getOwnerID = new getOwnerID(this);
             String owner_id = getOwnerID.execute(division, post, name).get();
@@ -246,14 +247,50 @@ public class generateQRCode extends AppCompatActivity {
             PreInsert insert = new PreInsert(this);
             insert.execute(owner_id, equipmentID);
 
+            getRecordId getRecordId = new getRecordId(this);
+            String item_id = getRecordId.execute(owner_id, equipmentID).get();
 
+            intent.putExtra("item_id", item_id);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
-        startActivity(intent);
+       startActivity(intent);
     }
 
-    private static class getRecordId extends AsyncTask
+    private static class getRecordId extends AsyncTask<String, Void, String> {
+        private final WeakReference<generateQRCode> weakReference;
+
+        getRecordId(generateQRCode context) {
+            weakReference = new WeakReference<>(context);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            generateQRCode activity = weakReference.get();
+            String owner_id = params[0];
+            String equipment_id = params[1];
+            String sql = "select Items_ID as id from inventory i where owner_id = ? and E_id = ?";
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            try {
+                ps = activity.con.prepareStatement(sql);
+                ps.setString(1, owner_id);
+                ps.setString(2, equipment_id);
+                rs = ps.executeQuery();
+                if (rs.next()) return rs.getString("id");
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+            } finally {
+                try {
+                    if (ps != null) ps.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+            return null;
+        }
+    }
 
     private static class getEquipmentID extends AsyncTask<String, Void, String> {
         private final WeakReference<generateQRCode> weakReference;
@@ -338,7 +375,6 @@ public class generateQRCode extends AppCompatActivity {
 
     private static class PreInsert extends AsyncTask<String, Void, Void> {
         private final WeakReference<generateQRCode> weakReference;
-        boolean insert = false;
 
         PreInsert(generateQRCode context) {
             weakReference = new WeakReference<>(context);
@@ -360,10 +396,8 @@ public class generateQRCode extends AppCompatActivity {
                 ps.setString(2, owner_id);
                 ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
                 ps.executeUpdate();
-                insert = true;
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
-                insert = false;
             } finally {
                 try {
                     if (ps != null) ps.close();
@@ -374,23 +408,6 @@ public class generateQRCode extends AppCompatActivity {
             return null;
         }
 
-        @Override
-        protected void onPostExecute(Void unused) {
-            generateQRCode activity = weakReference.get();
-            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
-            if (insert) {
-                dialog.setTitle("Insert successful");
-                dialog.setMessage("This data added to mysql");
-                dialog.setPositiveButton("confirm", (dialog1, which) -> dialog1.dismiss());
-            } else {
-                dialog.setTitle("Insert fail");
-                dialog.setMessage("This data fail to added to mysql");
-                dialog.setPositiveButton("confirm", (dialog1, which) -> dialog1.dismiss());
-            }
-            dialog.setCancelable(false);
-            dialog.show();
-            super.onPostExecute(unused);
-        }
     }
 
 

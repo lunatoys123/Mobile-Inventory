@@ -48,25 +48,15 @@ public class ViewQRCode extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         new DataBaseInitial(this).execute();
         if (extras != null) {
-            String division = getIntent().getStringExtra("division");
-            String post = getIntent().getStringExtra("post");
-            String name = getIntent().getStringExtra("name");
-            String Type = getIntent().getStringExtra("Type");
-            String Model = getIntent().getStringExtra("Model");
-            String SerialNo = getIntent().getStringExtra("Serial");
+            String item_id = getIntent().getStringExtra("item_id");
 
-            String QRContent = "Audit Commission \ndivision: " + division + "\n" +
-                    "post: " + post + "\n" +
-                    "name: " + name + "\n" +
-                    "Type: " + Type + "\n" +
-                    "Model_no: " + Model + "\n" +
-                    "Serial_no: " + SerialNo;
+
+            String QRContent = "Audit Commission \n" + item_id;
 
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
             try {
-                // AESEncryption aes = new AESEncryption("audit Commission");
-                // QRContent = aes.encrypt(QRContent);
+
                 BitMatrix bitMatrix = multiFormatWriter.encode(QRContent, BarcodeFormat.QR_CODE, 500, 500);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
@@ -79,117 +69,12 @@ public class ViewQRCode extends AppCompatActivity {
 
     }
 
-    public void send(View view) throws ExecutionException, InterruptedException {
-        String division = getIntent().getStringExtra("division");
-        String post = getIntent().getStringExtra("post");
-        String name = getIntent().getStringExtra("name");
-        String Type = getIntent().getStringExtra("Type");
-        String Model = getIntent().getStringExtra("Model");
-        String SerialNo = getIntent().getStringExtra("Serial");
-        String ownersId = new getOwnersID(this).execute(division, post, name).get();
-        String EquipmentId = new getEquipmentID(this).execute(Type, Model, SerialNo).get();
-        new SendImageToDataBase(this).execute(ownersId, EquipmentId);
+    public void send(View view) {
+        String item_id = getIntent().getStringExtra("item_id");
+        new SendImageToDataBase(this).execute(item_id);
     }
 
-    private static class getEquipmentID extends AsyncTask<String, Void, String> {
-        private final WeakReference<ViewQRCode> weakReference;
 
-        getEquipmentID(ViewQRCode context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            ViewQRCode activity = weakReference.get();
-            String EquipmentID = null;
-            String sql = "select E_id as id from equipment where Type=? and Model=? and Serial =?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, params[0]);
-                ps.setString(2, params[1]);
-                ps.setString(3, params[2]);
-                rs = ps.executeQuery();
-
-                if(rs.next()){
-                    EquipmentID = rs.getString("id");
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally{
-                if(ps!=null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-
-                if(rs!=null){
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-            }
-
-            return EquipmentID;
-        }
-    }
-
-    private static class getOwnersID extends AsyncTask<String, Void, String> {
-
-        private final WeakReference<ViewQRCode> weakReference;
-
-        getOwnersID(ViewQRCode context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            ViewQRCode activity = weakReference.get();
-            String ownerID = null;
-
-            String sql = "SELECT owner_id as id FROM owners where owner_post=? and owner_name=? and owner_division=?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, params[1]);
-                ps.setString(2, params[2]);
-                ps.setString(3, params[0]);
-                rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    ownerID = rs.getString("id");
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-            }
-
-            return ownerID;
-        }
-    }
 
     private static class SendImageToDataBase extends AsyncTask<String, Void, Void> {
         String info = "";
@@ -203,20 +88,19 @@ public class ViewQRCode extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             ViewQRCode activity = weakReference.get();
-            String sql = "insert into inventory values (null,?,?,?,?)";
+            String sql = "update inventory set QR_Code = ? where Items_Id = ?";
             PreparedStatement ps = null;
             try {
                 ps = activity.con.prepareStatement(sql);
-                ps.setString(1, params[1]);
-                ps.setString(2, params[0]);
-                ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) activity.QRCodeImageView.getDrawable();
                 Bitmap bitmap1 = bitmapDrawable.getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap1.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] imageInByte = stream.toByteArray();
                 ByteArrayInputStream bs = new ByteArrayInputStream(imageInByte);
-                ps.setBinaryStream(4, bs);
+                ps.setBinaryStream(1, bs);
+                ps.setString(2, params[0]);
+
                 ps.executeUpdate();
                 insert = true;
             } catch (SQLException e) {
