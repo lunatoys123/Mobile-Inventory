@@ -12,7 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileInventory">
-        <activity android:name=".qr_delete"></activity>
+        <activity android:name=".tableContent"></activity>
+        <activity android:name=".tableview" />
+        <activity android:name=".qr_delete" />
         <activity android:name=".qr_update" />
         <activity android:name=".scanQR" />
         <activity android:name=".ViewQRCode" />

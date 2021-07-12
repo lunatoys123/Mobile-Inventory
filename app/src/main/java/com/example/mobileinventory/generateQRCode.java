@@ -424,7 +424,7 @@ public class generateQRCode extends AppCompatActivity {
             generateQRCode activity = weakReference.get();
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                activity.con = DriverManager.getConnection("jdbc:mysql://192.168.1.140:3306/world?autoReconnect=true&useSSL=false", "tony", "Lunatoys123");
+                activity.con = DriverManager.getConnection("jdbc:mysql://175.45.63.58:3306/world?autoReconnect=true&useSSL=false", "tony", "Lunatoys123");
                 Info += "Connection Successful \n";
             } catch (ClassNotFoundException | SQLException e) {
                 Info += e.toString() + "\n";

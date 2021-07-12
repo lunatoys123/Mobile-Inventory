@@ -1,7 +1,9 @@
 package com.example.mobileinventory;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,7 +11,8 @@ import android.widget.Button;
 
 public class MainMenu extends AppCompatActivity {
 
-    Button GenerateQRCode, updateQRBtn, DeleteQRBtn;
+    Button GenerateQRCode, updateQRBtn, showData;
+    final String[] option = {"update", "Delete"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +21,7 @@ public class MainMenu extends AppCompatActivity {
 
         GenerateQRCode = findViewById(R.id.GenQRCode);
         updateQRBtn = findViewById(R.id.updateQRBtn);
-        DeleteQRBtn = findViewById(R.id.DeleteQRBtn);
+        showData = findViewById(R.id.showData);
 
 
         GenerateQRCode.setOnClickListener(v -> {
@@ -27,15 +30,23 @@ public class MainMenu extends AppCompatActivity {
         });
 
         updateQRBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainMenu.this, scanQR.class);
-            intent.putExtra("Action", "update");
+
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("choose operation");
+            dialog.setItems(option, (dialog1, which) -> {
+                Intent intent = new Intent(MainMenu.this, scanQR.class);
+                intent.putExtra("Action", option[which]);
+                startActivity(intent);
+            });
+            dialog.setCancelable(false);
+            dialog.show();
+        });
+
+        showData.setOnClickListener(v -> {
+            Intent intent = new Intent(MainMenu.this, tableview.class);
             startActivity(intent);
         });
 
-        DeleteQRBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainMenu.this, scanQR.class);
-            intent.putExtra("Action","Delete");
-            startActivity(intent);
-        });
+
     }
 }
