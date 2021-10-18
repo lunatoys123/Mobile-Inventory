@@ -61,26 +61,27 @@
         <Spinner
             android:id="@+id/divisionSpinner"
             android:layout_width="283dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:textAlignment="gravity"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.854"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <Spinner
             android:id="@+id/postSpinner"
             android:layout_width="283dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginTop="28dp"
             android:gravity="center"
             android:textAlignment="gravity"
             app:layout_constraintStart_toEndOf="@+id/textView4"
-            app:layout_constraintTop_toBottomOf="@+id/divisionSpinner" />
+            app:layout_constraintTop_toBottomOf="@+id/divisionSpinner"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <TextView
             android:id="@+id/nameEditText"
@@ -108,8 +109,7 @@
             android:layout_width="83dp"
             android:layout_height="44dp"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="post"
             app:layout_constraintStart_toStartOf="parent"
@@ -120,8 +120,7 @@
             android:layout_width="83dp"
             android:layout_height="44dp"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="name"
             app:layout_constraintStart_toStartOf="parent"
@@ -143,26 +142,23 @@
     <Spinner
         android:id="@+id/choiceSpinner"
         android:layout_width="255dp"
-        android:layout_height="46dp"
+        android:layout_height="48dp"
         android:layout_marginStart="18dp"
-        android:layout_marginLeft="18dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginRight="35dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <Button
         android:id="@+id/SearchBtn"
         android:layout_width="wrap_content"
-        android:layout_height="42dp"
+        android:layout_height="48dp"
         android:layout_marginStart="59dp"
-        android:layout_marginLeft="59dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="33dp"
-        android:layout_marginRight="33dp"
         android:onClick="Search"
         android:text="Search"
         app:layout_constraintEnd_toEndOf="parent"

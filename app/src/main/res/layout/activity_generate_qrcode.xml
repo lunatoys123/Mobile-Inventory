@@ -19,10 +19,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Spinner
-                android:id="@+id/SerialNoSpinner"
+            <TextView
+                android:id="@+id/SerialNoTextView"
                 android:layout_width="242dp"
-                android:layout_height="35dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="13dp"
@@ -33,7 +33,8 @@
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/serial_no_text"
-                app:layout_constraintTop_toBottomOf="@+id/modelSpinner" />
+                app:layout_constraintTop_toBottomOf="@+id/modelSpinner"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView
                 android:id="@+id/Debug"
@@ -54,8 +55,7 @@
                 android:id="@+id/onwer_division_text"
                 android:layout_width="137dp"
                 android:layout_height="52dp"
-                android:layout_marginStart="13dp"
-                android:layout_marginTop="65dp"
+                android:layout_marginTop="64dp"
                 android:layout_marginEnd="8dp"
                 android:gravity="center"
                 android:text="@string/owners_division"
@@ -68,7 +68,6 @@
                 android:id="@+id/owner_post_text"
                 android:layout_width="136dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="13dp"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/owners_post"
@@ -80,7 +79,7 @@
                 android:id="@+id/name3"
                 android:layout_width="136dp"
                 android:layout_height="35dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/owners_name"
                 android:textSize="16sp"
@@ -94,16 +93,18 @@
                 android:layout_marginStart="11dp"
                 android:gravity="center"
                 app:layout_constraintStart_toEndOf="@+id/onwer_division_text"
-                app:layout_constraintTop_toTopOf="@+id/onwer_division_text" />
+                app:layout_constraintTop_toTopOf="@+id/onwer_division_text"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <Spinner
                 android:id="@+id/Post_spinner"
                 android:layout_width="242dp"
-                android:layout_height="35dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 app:layout_constraintStart_toStartOf="@+id/division_Spinner"
-                app:layout_constraintTop_toBottomOf="@+id/division_Spinner" />
+                app:layout_constraintTop_toBottomOf="@+id/division_Spinner"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView
                 android:id="@+id/nameText"
@@ -122,7 +123,7 @@
                 android:id="@+id/Equipement_type_text"
                 android:layout_width="136dp"
                 android:layout_height="35dp"
-                android:layout_marginTop="69dp"
+                android:layout_marginTop="68dp"
                 android:gravity="center"
                 android:text="@string/equipment_type"
                 android:textSize="16sp"
@@ -133,7 +134,7 @@
                 android:id="@+id/model_text"
                 android:layout_width="136dp"
                 android:layout_height="35dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/model"
                 app:layout_constraintStart_toStartOf="@+id/serial_no_text"
@@ -143,8 +144,8 @@
                 android:id="@+id/serial_no_text"
                 android:layout_width="136dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="13dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/serial_no"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +154,7 @@
             <Spinner
                 android:id="@+id/modelSpinner"
                 android:layout_width="242dp"
-                android:layout_height="35dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="13dp"
@@ -164,19 +165,21 @@
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/model_text"
-                app:layout_constraintTop_toBottomOf="@+id/Type_Spinner" />
+                app:layout_constraintTop_toBottomOf="@+id/Type_Spinner"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <Spinner
                 android:id="@+id/Type_Spinner"
                 android:layout_width="242dp"
-                android:layout_height="35dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginTop="69dp"
                 android:layout_marginEnd="13dp"
                 android:gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/Equipement_type_text"
-                app:layout_constraintTop_toBottomOf="@+id/nameText" />
+                app:layout_constraintTop_toBottomOf="@+id/nameText"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <Button
                 android:id="@+id/UpdateBtn"
@@ -190,7 +193,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/SerialNoSpinner" />
+                app:layout_constraintTop_toBottomOf="@+id/SerialNoTextView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

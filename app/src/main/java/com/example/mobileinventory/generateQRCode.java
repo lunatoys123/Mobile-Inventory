@@ -1,6 +1,5 @@
 package com.example.mobileinventory;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,9 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.ref.WeakReference;
@@ -30,8 +27,8 @@ import java.util.concurrent.ExecutionException;
 public class generateQRCode extends AppCompatActivity {
 
     Connection con = null;
-    TextView DebugLog, nameText;
-    Spinner division_spinner, post_spinner, Type_spinner, model_spinner, Serial_no_spinner;
+    TextView DebugLog, nameText, SerialNoTextView;
+    Spinner division_spinner, post_spinner, Type_spinner, model_spinner;
     Button previewBtn;
 
 
@@ -46,7 +43,7 @@ public class generateQRCode extends AppCompatActivity {
         nameText = findViewById(R.id.nameText);
         Type_spinner = findViewById(R.id.Type_Spinner);
         model_spinner = findViewById(R.id.modelSpinner);
-        Serial_no_spinner = findViewById(R.id.SerialNoSpinner);
+        SerialNoTextView = findViewById(R.id.SerialNoTextView);
         previewBtn = findViewById(R.id.UpdateBtn);
 
         new DataBaseInitial(this).execute();
@@ -216,10 +213,10 @@ public class generateQRCode extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void unused) {
-            generateQRCode activity = weakReference.get();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, Serial);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            activity.Serial_no_spinner.setAdapter(adapter);
+//            generateQRCode activity = weakReference.get();
+//            ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, Serial);
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//            activity.Serial_no_spinner.setAdapter(adapter);
             super.onPostExecute(unused);
         }
     }
@@ -231,7 +228,7 @@ public class generateQRCode extends AppCompatActivity {
         String name = nameText.getText().toString();
         String Type = Type_spinner.getSelectedItem().toString();
         String Model = model_spinner.getSelectedItem().toString();
-        String Serial = (Serial_no_spinner.getSelectedItem() == null) ? "" : Serial_no_spinner.getSelectedItem().toString();
+        String Serial =SerialNoTextView.getText().toString();
 //        intent.putExtra("division", division);
 //        intent.putExtra("post", post);
 //        intent.putExtra("name", name);

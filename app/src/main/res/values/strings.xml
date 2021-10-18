@@ -11,6 +11,8 @@
     <string name="delete_qr_code">Delete QR Code</string>
     <string name="update_qr_code">update QR Code</string>
     <string name="generate_qr_code">Generate QR Code</string>
+    <string name="back_to_main_menu">Back To Main Menu</string>
+    <string name="back_to_searching">Back to Searching</string>
 
     <string-array name="choice_array">
         <item>Choice from Serial number</item>

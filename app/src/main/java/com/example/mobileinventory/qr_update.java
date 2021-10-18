@@ -49,7 +49,7 @@ public class qr_update extends AppCompatActivity {
         nameText = findViewById(R.id.nameText);
         Type_spinner = findViewById(R.id.Type_Spinner);
         model_spinner = findViewById(R.id.modelSpinner);
-        Serial_no_spinner = findViewById(R.id.SerialNoSpinner);
+        Serial_no_spinner = findViewById(R.id.SerialNoTextView);
 
         dataBaseInitial = new DataBaseInitial(this);
         dataBaseInitial.execute();
@@ -557,7 +557,7 @@ public class qr_update extends AppCompatActivity {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.Serial_no_spinner.setAdapter(adapter);
             String Old_Serial = activity.Info[5];
-            if (Old_Serial.equals("")) {
+            if (!Old_Serial.equals("")) {
                 int position = Serial.indexOf(Old_Serial.trim());
                 activity.Serial_no_spinner.setSelection(position);
             }

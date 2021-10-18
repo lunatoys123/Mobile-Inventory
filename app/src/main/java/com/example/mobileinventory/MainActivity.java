@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             MainActivity activity = weakReference.get();
 
-            String selectStatement = "select * from Administrator where user_email='" +
+            String selectStatement = "select * from owners where user_name='" +
                     activity.Email.getText().toString().trim() + "' and user_password='" + activity.Password.getText().toString().trim() + "'";
             Log.i("Login ", selectStatement);
             PreparedStatement statement = null;
