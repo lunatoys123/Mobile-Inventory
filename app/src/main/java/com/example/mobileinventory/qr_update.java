@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -19,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -27,13 +27,12 @@ public class qr_update extends AppCompatActivity {
 
     TextView debug, nameText;
     Connection con = null;
-    Spinner division_spinner, post_spinner, Type_spinner, model_spinner, Serial_no_spinner;
-    String Old_ownersId, Old_EquipmentId;
+    Spinner division_spinner, post_spinner, Type_spinner, model_spinner;
+    EditText SerialNoTextView;
     String[] Info;
-    getOwnersID getOwners;
-    getEquipmentID getEquipmentID;
     DataBaseInitial dataBaseInitial;
     getInfoFromItemId getInfoFromItemId;
+    String item_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +40,7 @@ public class qr_update extends AppCompatActivity {
         setContentView(R.layout.activity_qr_update);
 
         String[] content = getIntent().getStringExtra("content").split("\n");
-        String item_id = content[1];
+        item_id = content[1];
 
         debug = findViewById(R.id.Debug);
         division_spinner = findViewById(R.id.division_Spinner);
@@ -49,7 +48,7 @@ public class qr_update extends AppCompatActivity {
         nameText = findViewById(R.id.nameText);
         Type_spinner = findViewById(R.id.Type_Spinner);
         model_spinner = findViewById(R.id.modelSpinner);
-        Serial_no_spinner = findViewById(R.id.SerialNoTextView);
+        SerialNoTextView = findViewById(R.id.SerialNoTextView);
 
         dataBaseInitial = new DataBaseInitial(this);
         dataBaseInitial.execute();
@@ -61,32 +60,31 @@ public class qr_update extends AppCompatActivity {
 
             new InitialSpinnerOwners(this).execute();
             new setUpEquipmentSpinner(this).execute();
-
-            getOwners = new getOwnersID(this);
-            getEquipmentID = new getEquipmentID(this);
-            Old_ownersId = getOwners.execute(Info[0], Info[1], Info[2]).get();
-            Old_EquipmentId = getEquipmentID.execute(Info[3], Info[4], Info[5]).get();
-
-            checkQRExists exists = new checkQRExists(this);
-            boolean QRExists = exists.execute(Old_ownersId, Old_EquipmentId).get();
-            if (!QRExists) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(qr_update.this);
-                dialog.setTitle("Exception");
-                dialog.setMessage("This QR Code not exists in Database");
-                dialog.setCancelable(false);
-                dialog.setPositiveButton("Confirm", (dialog1, which) -> {
-                    Intent intent = new Intent(qr_update.this, MainMenu.class);
-                    startActivity(intent);
-                });
-                dialog.show();
-            }
+//
+//            //getOwners = new getOwnersID(this);
+//            //getEquipmentID = new getEquipmentID(this);
+//            //Old_ownersId = getOwners.execute(Info[0], Info[1], Info[2]).get();
+//            //Old_EquipmentId = getEquipmentID.execute(Info[3], Info[4], Info[5]).get();
+//
+////            checkQRExists exists = new checkQRExists(this);
+////                                                            //Type  //Model   //Serial
+////            boolean QRExists = exists.execute(items, Info[3], Info[4], Info[5]).get();
+////            if (!QRExists) {
+////                AlertDialog.Builder dialog = new AlertDialog.Builder(qr_update.this);
+////                dialog.setTitle("Exception");
+////                dialog.setMessage("This QR Code not exists in Database");
+////                dialog.setCancelable(false);
+////                dialog.setPositiveButton("Confirm", (dialog1, which) -> {
+////                    Intent intent = new Intent(qr_update.this, MainMenu.class);
+////                    startActivity(intent);
+////                });
+////                dialog.show();
+////            }
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
 
         //debug.setText(getIntent().getStringExtra("content"));
-
-
     }
 
     private static class getInfoFromItemId extends AsyncTask<String, Void, String[]> {
@@ -101,9 +99,9 @@ public class qr_update extends AppCompatActivity {
             String[] result = new String[6];
             qr_update activity = weakReference.get();
             String item_id = params[0];
-            String sql = "select o.owner_division,o.owner_post, o.owner_name, e.Type, e.Model, e.Serial " +
-                    "from inventory i ,owners o,equipment e where i.items_id = ? " +
-                    "and i.E_id = e.E_id and i.owner_id = o.owner_id";
+            String sql = "select o.owner_division,o.owner_post, o.owner_name, i.Type, i.Model, i.Serial " +
+                    "from inventory i ,owners o where i.items_id = ? " +
+                    "and i.owner_id = o.owner_id";
             PreparedStatement ps = null;
             ResultSet rs = null;
 
@@ -136,45 +134,6 @@ public class qr_update extends AppCompatActivity {
         }
     }
 
-    private static class checkQRExists extends AsyncTask<String, Void, Boolean> {
-        private final WeakReference<qr_update> weakReference;
-
-
-        checkQRExists(qr_update context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            qr_update activity = weakReference.get();
-            String Owner_id = params[0];
-            String Equipment_id = params[1];
-            String sql = "select * from inventory where E_id =? and owner_id =?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, Equipment_id);
-                ps.setString(2, Owner_id);
-                rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    return true;
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                try {
-                    if (ps != null) ps.close();
-                    if (rs != null) rs.close();
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-            return false;
-        }
-    }
 
     public void update(View view) throws ExecutionException, InterruptedException {
         String division = division_spinner.getSelectedItem().toString();
@@ -182,14 +141,14 @@ public class qr_update extends AppCompatActivity {
         String name = nameText.getText().toString();
         String type = Type_spinner.getSelectedItem().toString();
         String model = model_spinner.getSelectedItem().toString();
-        String Serial = (Serial_no_spinner.getSelectedItem() == null) ? "" : Serial_no_spinner.getSelectedItem().toString();
+        String Serial = SerialNoTextView.getText().toString();
 
         getOwnersID getOwners2 = new getOwnersID(this);
-        getEquipmentID getEquipmentID2 = new getEquipmentID(this);
+//      getEquipmentID getEquipmentID2 = new getEquipmentID(this);
         String new_ownersId = getOwners2.execute(division, post, name).get();
-        String new_equipmentID = getEquipmentID2.execute(type, model, Serial).get();
+//      String new_equipmentID = getEquipmentID2.execute(type, model, Serial).get();
 //      Toast.makeText(qr_delete_and_update.this, String.valueOf(get.getStatus() == AsyncTask.Status.FINISHED), Toast.LENGTH_SHORT).show();
-        new updateInfo(this).execute(Old_ownersId, Old_EquipmentId, new_ownersId, new_equipmentID);
+        new updateInfo(this).execute(new_ownersId, type, model, Serial);
     }
 
 
@@ -203,16 +162,20 @@ public class qr_update extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             qr_update activity = weakReference.get();
-            String sql = "update inventory set E_id=?, owner_id=?,Date=? where E_id=? and owner_id=?";
+            String sql = "update inventory set owner_id = ?, Type = ? , Model = ?, Serial = ? where Items_ID=?";
+            String owner_id = params[0];
+            String Type = params[1];
+            String Model = params[2];
+            String Serial = params[3];
             PreparedStatement ps = null;
 
             try {
                 ps = activity.con.prepareStatement(sql);
-                ps.setString(1, params[3]);
-                ps.setString(2, params[2]);
-                ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
-                ps.setString(4, params[1]);
-                ps.setString(5, params[0]);
+                ps.setString(1, owner_id);
+                ps.setString(2, Type);
+                ps.setString(3, Model);
+                ps.setString(4, Serial);
+                ps.setString(5, activity.item_id);
                 ps.executeUpdate();
             } catch (Exception throwable) {
                 throwable.printStackTrace();
@@ -245,61 +208,6 @@ public class qr_update extends AppCompatActivity {
         }
     }
 
-    private static class getEquipmentID extends AsyncTask<String, Void, String> {
-        private final WeakReference<qr_update> weakReference;
-
-        getEquipmentID(qr_update context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            qr_update activity = weakReference.get();
-            String EquipmentID = null;
-            String sql = "select E_id as id from equipment where Type=? and Model=? and Serial =?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, params[0]);
-                ps.setString(2, params[1]);
-                ps.setString(3, params[2]);
-                rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    EquipmentID = rs.getString("id");
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-            }
-
-            return EquipmentID;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            qr_update activity = weakReference.get();
-            activity.debug.append("\n" + "finish getting equipment");
-            super.onPostExecute(s);
-        }
-    }
 
     private static class getOwnersID extends AsyncTask<String, Void, String> {
 
@@ -486,84 +394,13 @@ public class qr_update extends AppCompatActivity {
             String Old_model = activity.Info[4];
             int position = model_list.indexOf(Old_model.trim());
             activity.model_spinner.setSelection(position);
-            activity.model_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //String text = parent.getItemAtPosition(position).toString();
-                    new Serial(activity).execute();
-                }
+            activity.SerialNoTextView.setText(activity.Info[5]);
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
             super.onPostExecute(unused);
         }
     }
 
-    private static class Serial extends AsyncTask<Void, Void, Void> {
 
-        List<String> Serial = new ArrayList<>();
-        private final WeakReference<qr_update> weakReference;
-
-        Serial(qr_update context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            qr_update activity = weakReference.get();
-            String sql = "select distinct Serial from equipment where type=? and model=? " +
-                    "and Serial <> '' order by Serial";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, activity.Type_spinner.getSelectedItem().toString());
-                ps.setString(2, activity.model_spinner.getSelectedItem().toString());
-                rs = ps.executeQuery();
-
-                while (rs.next()) {
-                    Serial.add(rs.getString("Serial"));
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            qr_update activity = weakReference.get();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, Serial);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            activity.Serial_no_spinner.setAdapter(adapter);
-            String Old_Serial = activity.Info[5];
-            if (!Old_Serial.equals("")) {
-                int position = Serial.indexOf(Old_Serial.trim());
-                activity.Serial_no_spinner.setSelection(position);
-            }
-            super.onPostExecute(unused);
-        }
-    }
 
     private static class DataBaseInitial extends AsyncTask<Void, Void, Void> {
         String Info = "";

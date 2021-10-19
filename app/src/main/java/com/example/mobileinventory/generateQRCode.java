@@ -3,12 +3,15 @@ package com.example.mobileinventory;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,6 +21,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,9 +31,10 @@ import java.util.concurrent.ExecutionException;
 public class generateQRCode extends AppCompatActivity {
 
     Connection con = null;
-    TextView DebugLog, nameText, SerialNoTextView;
+    TextView DebugLog, nameText;
     Spinner division_spinner, post_spinner, Type_spinner, model_spinner;
     Button previewBtn;
+    EditText SerialNoTextView;
 
 
     @Override
@@ -156,70 +161,11 @@ public class generateQRCode extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, model_list);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             activity.model_spinner.setAdapter(adapter);
-            activity.model_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //String text = parent.getItemAtPosition(position).toString();
-                    new Serial(activity).execute();
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
             super.onPostExecute(unused);
         }
     }
 
-    private static class Serial extends AsyncTask<Void, Void, Void> {
 
-        List<String> Serial = new ArrayList<>();
-        private final WeakReference<generateQRCode> weakReference;
-
-        Serial(generateQRCode context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            generateQRCode activity = weakReference.get();
-            String sql = "select distinct Serial from equipment where type=? and model=? " +
-                    "and Serial <> '' order by Serial ";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, activity.Type_spinner.getSelectedItem().toString());
-                ps.setString(2, activity.model_spinner.getSelectedItem().toString());
-                rs = ps.executeQuery();
-
-                while (rs.next()) {
-                    Serial.add(rs.getString("Serial"));
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                try {
-                    if (ps != null) ps.close();
-                    if (rs != null) rs.close();
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-//            generateQRCode activity = weakReference.get();
-//            ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, Serial);
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//            activity.Serial_no_spinner.setAdapter(adapter);
-            super.onPostExecute(unused);
-        }
-    }
 
     public void preview(View view) {
         Intent intent = new Intent(generateQRCode.this, ViewQRCode.class);
@@ -238,96 +184,18 @@ public class generateQRCode extends AppCompatActivity {
         try {
             getOwnerID getOwnerID = new getOwnerID(this);
             String owner_id = getOwnerID.execute(division, post, name).get();
-            getEquipmentID getEquipmentID = new getEquipmentID(this);
-            String equipmentID = getEquipmentID.execute(Type, Model, Serial).get();
+
 
             PreInsert insert = new PreInsert(this);
-            insert.execute(owner_id, equipmentID);
+            String insertLastkey = insert.execute(owner_id, Type, Model, Serial).get();
 
-            getRecordId getRecordId = new getRecordId(this);
-            String item_id = getRecordId.execute(owner_id, equipmentID).get();
+            Log.i("LastKey", insertLastkey);
 
-            intent.putExtra("item_id", item_id);
+          intent.putExtra("item_id", insertLastkey);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
        startActivity(intent);
-    }
-
-    private static class getRecordId extends AsyncTask<String, Void, String> {
-        private final WeakReference<generateQRCode> weakReference;
-
-        getRecordId(generateQRCode context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            generateQRCode activity = weakReference.get();
-            String owner_id = params[0];
-            String equipment_id = params[1];
-            String sql = "select Items_ID as id from inventory i where owner_id = ? and E_id = ?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, owner_id);
-                ps.setString(2, equipment_id);
-                rs = ps.executeQuery();
-                if (rs.next()) return rs.getString("id");
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                try {
-                    if (ps != null) ps.close();
-                    if (rs != null) rs.close();
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
-
-    private static class getEquipmentID extends AsyncTask<String, Void, String> {
-        private final WeakReference<generateQRCode> weakReference;
-
-        getEquipmentID(generateQRCode context) {
-            weakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            generateQRCode activity = weakReference.get();
-            String type = params[0];
-            String Model = params[1];
-            String Serial = params[2];
-            String sql = "select E_id as id from equipment where Type=? and Model=? and Serial =?";
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, type);
-                ps.setString(2, Model);
-                ps.setString(3, Serial);
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    return rs.getString("id");
-                }
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            } finally {
-                try {
-                    if (ps != null) ps.close();
-                    if (rs != null) rs.close();
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-
-            return null;
-        }
     }
 
     private static class getOwnerID extends AsyncTask<String, Void, String> {
@@ -370,7 +238,7 @@ public class generateQRCode extends AppCompatActivity {
         }
     }
 
-    private static class PreInsert extends AsyncTask<String, Void, Void> {
+    private static class PreInsert extends AsyncTask<String, Void, String> {
         private final WeakReference<generateQRCode> weakReference;
 
         PreInsert(generateQRCode context) {
@@ -379,20 +247,30 @@ public class generateQRCode extends AppCompatActivity {
 
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected String doInBackground(String... params) {
             generateQRCode activity = weakReference.get();
             String owner_id = params[0];
-            String equipment_id = params[1];
+            String Type = params[1];
+            String Model = params[2];
+            String Serial = params[3];
 
-            String sql = "insert into inventory values (null,?,?,?,null)";
+            String sql = "insert into inventory values (null,?,?,?,?,'','',null)";
             PreparedStatement ps = null;
 
             try {
-                ps = activity.con.prepareStatement(sql);
-                ps.setString(1, equipment_id);
-                ps.setString(2, owner_id);
-                ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
+                ps = activity.con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, owner_id);
+                ps.setString(2, Type);
+                ps.setString(3, Model);
+                ps.setString(4, Serial);
                 ps.executeUpdate();
+
+                ResultSet rs = ps.getGeneratedKeys();
+                if(rs.next()){
+                   return String.valueOf(rs.getInt(1));
+                }
+
+
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             } finally {

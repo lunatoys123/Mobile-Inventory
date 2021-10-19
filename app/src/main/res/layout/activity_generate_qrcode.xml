@@ -20,29 +20,12 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/SerialNoTextView"
-                android:layout_width="242dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="7dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="13dp"
-                android:autofillHints="model_no"
-                android:ems="10"
-                android:hint="@string/serial_no"
-                android:inputType="textPersonName"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/serial_no_text"
-                app:layout_constraintTop_toBottomOf="@+id/modelSpinner"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-            <TextView
                 android:id="@+id/Debug"
                 android:layout_width="388dp"
                 android:layout_height="204dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="4dp"
-                android:text="TextView"
+                android:text="@string/textview"
                 android:textColor="#DA1414"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -186,7 +169,7 @@
                 android:layout_width="299dp"
                 android:layout_height="55dp"
                 android:layout_marginStart="56dp"
-                android:layout_marginTop="57dp"
+                android:layout_marginTop="48dp"
                 android:layout_marginEnd="56dp"
                 android:onClick="preview"
                 android:text="@string/preview_qr_code"
@@ -194,6 +177,20 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/SerialNoTextView" />
+
+            <EditText
+                android:id="@+id/SerialNoTextView"
+                android:layout_width="242dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="15dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/serial_no_text"
+                app:layout_constraintTop_toBottomOf="@+id/modelSpinner"
+                tools:ignore="SpeakableTextPresentCheck" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

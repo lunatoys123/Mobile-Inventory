@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Spinner
+            <EditText
                 android:id="@+id/SerialNoTextView"
                 android:layout_width="230dp"
                 android:layout_height="48dp"
