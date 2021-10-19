@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/drawable/ic_launcher_background.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/activity_generate_qrcode.xml" value="0.36302083333333335" />
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/activity_main.xml" value="0.36302083333333335" />
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/activity_main_menu.xml" value="0.17654508611955422" />
@@ -14,6 +15,7 @@
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/activity_view_qrcode.xml" value="0.36302083333333335" />
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/mylist.xml" value="0.2921195652173913" />
         <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/layout/spinner_item.xml" value="0.2921195652173913" />
+        <entry key="..\:/Users/tktlau/AndroidStudioProjects/MobileInventory/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.23333333333333334" />
       </map>
     </option>
   </component>

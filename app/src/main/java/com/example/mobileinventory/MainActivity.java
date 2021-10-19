@@ -54,9 +54,10 @@ public class MainActivity extends AppCompatActivity {
         String Info = "";
         private final WeakReference<MainActivity> weakReference;
 
-        DataBaseInitial(MainActivity context){
+        DataBaseInitial(MainActivity context) {
             weakReference = new WeakReference<>(context);
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             MainActivity activity = weakReference.get();
@@ -93,9 +94,10 @@ public class MainActivity extends AppCompatActivity {
         String Info = "";
         private final WeakReference<MainActivity> weakReference;
 
-        User_Login(MainActivity context){
+        User_Login(MainActivity context) {
             weakReference = new WeakReference<>(context);
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             MainActivity activity = weakReference.get();
@@ -105,33 +107,20 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Login ", selectStatement);
             PreparedStatement statement = null;
             ResultSet rs = null;
-
             try {
                 statement = activity.con.prepareStatement(selectStatement);
                 rs = statement.executeQuery();
-
                 Login_success = rs.next();
             } catch (SQLException e) {
                 Info += e.toString() + "\n";
             } finally {
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        Info += e.toString() + "\n";
-                    }
-                }
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        Info += e.toString() + "\n";
-                    }
+                try {
+                    if (statement != null) statement.close();
+                    if (rs != null) rs.close();
+                } catch (SQLException e) {
+                    Info += e.toString() + "\n";
                 }
             }
-
-
             return null;
         }
 
@@ -147,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(activity, "No Password", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(Login_success){
+            if (Login_success) {
                 try {
                     activity.con.close();
                 } catch (SQLException e) {
@@ -155,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Intent intent = new Intent(activity, MainMenu.class);
                 activity.startActivity(intent);
-            }else{
+            } else {
                 activity.ErrorLog.append("Login failed");
                 activity.ErrorLog.append(Info);
             }
@@ -164,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void grantCameraPermission() {
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},1);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
         }
     }
 }
