@@ -62,12 +62,13 @@
             android:id="@+id/divisionSpinner"
             android:layout_width="283dp"
             android:layout_height="48dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:textAlignment="gravity"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.854"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/textView3"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="SpeakableTextPresentCheck" />
 
@@ -87,9 +88,10 @@
             android:id="@+id/nameEditText"
             android:layout_width="283dp"
             android:layout_height="44dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="28dp"
             android:gravity="center"
-            app:layout_constraintStart_toStartOf="@+id/postSpinner"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
             app:layout_constraintTop_toBottomOf="@+id/postSpinner" />
 
         <TextView
@@ -129,10 +131,9 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="115dp"
-        android:layout_height="46dp"
+        android:layout_width="83dp"
+        android:layout_height="49dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="Search by:"

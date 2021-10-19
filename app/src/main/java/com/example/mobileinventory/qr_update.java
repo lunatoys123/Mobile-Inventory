@@ -60,26 +60,7 @@ public class qr_update extends AppCompatActivity {
 
             new InitialSpinnerOwners(this).execute();
             new setUpEquipmentSpinner(this).execute();
-//
-//            //getOwners = new getOwnersID(this);
-//            //getEquipmentID = new getEquipmentID(this);
-//            //Old_ownersId = getOwners.execute(Info[0], Info[1], Info[2]).get();
-//            //Old_EquipmentId = getEquipmentID.execute(Info[3], Info[4], Info[5]).get();
-//
-////            checkQRExists exists = new checkQRExists(this);
-////                                                            //Type  //Model   //Serial
-////            boolean QRExists = exists.execute(items, Info[3], Info[4], Info[5]).get();
-////            if (!QRExists) {
-////                AlertDialog.Builder dialog = new AlertDialog.Builder(qr_update.this);
-////                dialog.setTitle("Exception");
-////                dialog.setMessage("This QR Code not exists in Database");
-////                dialog.setCancelable(false);
-////                dialog.setPositiveButton("Confirm", (dialog1, which) -> {
-////                    Intent intent = new Intent(qr_update.this, MainMenu.class);
-////                    startActivity(intent);
-////                });
-////                dialog.show();
-////            }
+
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -144,10 +125,8 @@ public class qr_update extends AppCompatActivity {
         String Serial = SerialNoTextView.getText().toString();
 
         getOwnersID getOwners2 = new getOwnersID(this);
-//      getEquipmentID getEquipmentID2 = new getEquipmentID(this);
         String new_ownersId = getOwners2.execute(division, post, name).get();
-//      String new_equipmentID = getEquipmentID2.execute(type, model, Serial).get();
-//      Toast.makeText(qr_delete_and_update.this, String.valueOf(get.getStatus() == AsyncTask.Status.FINISHED), Toast.LENGTH_SHORT).show();
+
         new updateInfo(this).execute(new_ownersId, type, model, Serial);
     }
 

@@ -76,8 +76,8 @@ public class tableContent extends AppCompatActivity {
         protected Void doInBackground(String... params) {
             tableContent activity = weakReference.get();
             String Serial = params[0];
-            String sql = "select o.owner_post, o.owner_name, o.owner_division, e.Type, e.Model, e.Serial, i.QR_code from inventory i, owners o , equipment e where " +
-                    "e.E_id = i.E_id and o.owner_id = i.owner_id and e.Serial like ?";
+            String sql = "select o.owner_post, o.owner_name, o.owner_division, i.Type, i.Model, i.Serial, i.QR_code from inventory i, owners o where " +
+                    " o.owner_id = i.owner_id and i.Serial like ?";
             PreparedStatement ps = null;
             ResultSet rs = null;
 
@@ -128,7 +128,7 @@ public class tableContent extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             tableContent activity = weakReference.get();
-            String sql = "select o.owner_post, o.owner_name, o.owner_division, e.Type, e.Model, e.Serial, i.QR_code from inventory i, owners o, equipment e where e.E_id = i.E_id and " +
+            String sql = "select o.owner_post, o.owner_name, o.owner_division, i.Type, i.Model, i.Serial, i.QR_code from inventory i, owners o where " +
                     "o.owner_id=i.owner_id and o.owner_post=? and o.owner_name=? and o.owner_division=?";
             PreparedStatement ps = null;
             ResultSet rs = null;
